@@ -43,7 +43,12 @@ const Dashboard: React.FC = () => {
     async function loadTransactions(): Promise<void> {
       const response: ResponseAPI = (await api.get('transactions')).data;
 
-      setBalance(response.balance);
+      const balanceFormatted: Balance = {
+        income: formatValue(parseFloat(response.balance.income)).toString(),
+        outcome: formatValue(parseFloat(response.balance.outcome)).toString(),
+        total: formatValue(parseFloat(response.balance.total)).toString(),
+      };
+
       const transactionsFormatted: Transaction[] = response.transactions.map(
         (transaction: Transaction) => ({
           id: transaction.id,
@@ -57,10 +62,12 @@ const Dashboard: React.FC = () => {
           created_at: transaction.created_at,
         }),
       );
+
+      setBalance(balanceFormatted);
       setTransactions(transactionsFormatted);
     }
     loadTransactions();
-  }, [transactions]);
+  }, transactions);
 
   async function handleDeleteTransaction(transactionID: string): Promise<void> {
     await api.delete(`transactions/${transactionID}`);
@@ -81,27 +88,21 @@ const Dashboard: React.FC = () => {
               <p>Entradas</p>
               <img src={income} alt="Income" />
             </header>
-            <h1 data-testid="balance-income">
-              {formatValue(parseFloat(balance.income))}
-            </h1>
+            <h1 data-testid="balance-income">{balance.income}</h1>
           </Card>
           <Card>
             <header>
               <p>Saídas</p>
               <img src={outcome} alt="Outcome" />
             </header>
-            <h1 data-testid="balance-outcome">
-              {formatValue(parseFloat(balance.outcome))}
-            </h1>
+            <h1 data-testid="balance-outcome">{balance.outcome}</h1>
           </Card>
           <Card total>
             <header>
               <p>Total</p>
               <img src={total} alt="Total" />
             </header>
-            <h1 data-testid="balance-total">
-              {formatValue(parseFloat(balance.total))}
-            </h1>
+            <h1 data-testid="balance-total">{balance.total}</h1>
           </Card>
         </CardContainer>
 
@@ -131,12 +132,12 @@ const Dashboard: React.FC = () => {
                   </td>
                   <td>{transaction.category.title}</td>
                   <td>{transaction.formattedDate}</td>
-                  <button
+                  {/* <button
                     type="button"
                     onClick={() => handleDeleteTransaction(transaction.id)}
                   >
                     X
-                  </button>
+                  </button> */}
                 </tr>
               ))}
             </tbody>
